@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1 user-scalable=yes">
+  <title>WS tool</title>
+  <link rel="stylesheet" href="../kadai/css/style.css">
+   <!-- Bootstrap CSS -->
+
+   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+    
+   <script src="https://code.jquery.com/jquery-3.0.0.min.js"></script>
+   <script src="https://code.jquery.com/ui/1.12.0/jquery-ui.js"></script>
+   
+   <link href="https://fonts.googleapis.com/css?family=M+PLUS+Rounded+1c" rel="stylesheet" />
+   <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+ 
+
+
+</head>
+
+
+<body>
+
+
+  <!-- Navigation bar dummy -->
+  <nav class="navbar navbar-dark bg-dark">
+      <a href="#" class="navbar-brand">Workshop Board</a>    
+  </nav>
+
+
+  <!-- ログイン画面 -->
+
+    <header class="header_position">
+
+    <!-- 参加しているユーザー表示 -->
+      <div id="users-contain" >
+        <h1 class="font_default">参加しているユーザー:</h1>
+        <table id="users" class="ui-widget-content">
+          <thead>
+            <tr class="ui-widget-header ">
+              <th>Name</th>
+              <th>Email</th>
+              <!-- <th>Password</th> -->
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>じょん</td>
+              <td>john.doe@example.com</td>
+              <!-- <td>johndoe1</td> -->
+            </tr>
+          </tbody>
+        </table>
+      </header>
+
+        <button id="create-user" class="add_usrbutton">ユーザーを追加</button>
+        <button id="clear1" class="delete_usrbutton">ユーザーを1行削除</button>
+     
+    <!-- フレームの選定ボタン -->
+    <div class="menu-position">
+      <ul  id="menu">
+        <li class="ui-widget-header"><div>フレーム選択</div></li>
+        <li><div onclick="func1()">ポジショニングマップ</div></li>
+        <li><div onclick="func2()">黒板</div></li>
+        <li><div onclick="func3()">コルクボード</div></li>
+      </ul>
+    </div>
+    
+      
+  </div>
+
+    <!-- 新規メモ追加ボタン -->
+    <button id="button_new" class="btn_size btn_new">+Add</button>
+
+    <!-- メモ削除ボタン -->
+    <button id="button_delete" class="btn_size btn_delete1">-Delete</button>
+
+
+    <!-- WSフレーム -->
+    <div id="parent" class="img_position" >
+        <img src="/1.jpg" id="image1">
+        <img src="/2.jpg" id="image2">
+        <img src="/3.jpg" id="image3">
+    </div>
+
+    <!-- 新しい付箋の追加場所 -->
+    <div id="frame"></div>
+
+    
+
+    <!-- 使い方 -->
+    <div class="dialog_color" id="dialog" title="使い方ガイド">
+      <p><strong>基本操作：</strong><br>
+        1.「＋Add」ボタンを押して、メモを追加してください。 <br>
+        2.追加したメモはダブルクリックで編集できます。 <br>
+        3.消したい付箋を選択して「−Delete」ボタンを押すと削除できます。<br>
+        ※作成したメモは更新しても消えません。<br>
+        <strong>拡張機能1：</strong> <br> 青色のプルダウンで作成する付箋の色を変更できます。<br>
+        <strong> 拡張機能2：</strong><br>「フレーム選択」で該当のフレームを選ぶと、そのフレームにキャンバスが置き換わります<br>
+        <strong> 拡張機能3（テスト）：</strong><br>参加するユーザーを登録できます。
+      </p>
+    </div>
+
+
+  <!-- 利用方法の記載 -->
+  <div id="dialog-form" title="Create new user">
+    <p class="validateTips">All form fields are required.</p>
+  
+    <!-- ユーザーログインフォーム -->
+    <form>
+      <fieldset>
+        <label for="name">Name</label>
+        <input type="text" name="name" id="name" value="Jane Smith" class="text ui-widget-content ui-corner-all">
+        <label for="email">Email</label>
+        <input type="text" name="email" id="email" value="jane@smith.com" class="text ui-widget-content ui-corner-all">
+        <!-- <label for="password">Password</label>
+        <input type="password" name="password" id="password" value="xxxxxxx" class="text ui-widget-content ui-corner-all"> -->
+  
+        <!-- Allow form submission with keyboard without duplicating the dialog button -->
+        <input type="submit" tabindex="-1" style="position:absolute; top:-1000px">
+      </fieldset>
+    </form>
+  </div>
+
+  <div class="box">
+      <select id="color" class="memo_color">
+      <option value="#ffc">Yellow</option>
+      <option value="#fcc">Red</option>
+      <option value="#cfc">Green</option>
+      </select>
+    </div>
+
+
+
+  <!-- -------------------------------------------------
+  javascript
+  ------------------------------------------------- -->
+  <script>
+
+       
+
+  // 使い方ガイド
+    $( function() {
+    $( "#dialog" ).dialog();
+  } );
+
+
+ 
+// ログインのポップアップ
+  $( function() {
+    var dialog, form,
+      
+      emailRegex = /^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/,
+      name = $( "#name" ),
+      email = $( "#email" ),
+      // password = $( "#password" ),
+      allFields = $( [] ).add( name ).add( email ),  //.add( password )
+      tips = $( ".validateTips" );
+ 
+    function updateTips( t ) {
+      tips
+        .text( t )
+        .addClass( "ui-state-highlight" );
+      setTimeout(function() {
+        tips.removeClass( "ui-state-highlight", 1500 );
+      }, 500 );
+    }
+ 
+    function checkLength( o, n, min, max ) {
+      if ( o.val().length > max || o.val().length < min ) {
+        o.addClass( "ui-state-error" );
+        updateTips( "Length of " + n + " must be between " +
+          min + " and " + max + "." );
+        return false;
+      } else {
+        return true;
+      }
+    }
+ 
+    function checkRegexp( o, regexp, n ) {
+      if ( !( regexp.test( o.val() ) ) ) {
+        o.addClass( "ui-state-error" );
+        updateTips( n );
+        return false;
+      } else {
+        return true;
+      }
+    }
+ 
+    function addUser() {
+      const key = $("#name").val();  //ユーザー情報をLocalStorageに追加
+      const value = $("#email").val();
+      localStorage.setItem(key,value);
+
+      var valid = true;
+      allFields.removeClass( "ui-state-error" );
+ 
+      valid = valid && checkLength( name, "username", 3, 16 );
+      valid = valid && checkLength( email, "email", 6, 80 );
+      // valid = valid && checkLength( password, "password", 5, 16 );
+ 
+      valid = valid && checkRegexp( name, /^[a-z]([0-9a-z_\s])+$/i, "Username may consist of a-z, 0-9, underscores, spaces and must begin with a letter." );
+      valid = valid && checkRegexp( email, emailRegex, "eg. ui@jquery.com" );
+      // valid = valid && checkRegexp( password, /^([0-9a-zA-Z])+$/, "Password field only allow : a-z 0-9" );
+ 
+      if ( valid ) {
+        $( "#users tbody" ).append( "<tr>" +
+          "<td>" + name.val() + "</td>" +
+          "<td>" + email.val() + "</td>" +
+          // "<td>" + password.val() + "</td>" +
+        "</tr>" );
+        dialog.dialog( "close" );
+      }
+      return valid;
+      
+    }
+
+    // 5.1行クリアする
+    $('#clear1').on("click", function(){
+      let table = document.getElementById("users");  //リストの情報を取得
+      let cell = table.rows[1];   // 1行目オブジェクト取得
+      let dkey = localStorage.key(1);   //オブジェクトからキー名を取得
+      localStorage.removeItem(dkey);  //上記のキー名を元にローカルストレージのアイテムを削除
+      users.deleteRow(1); //リスト上の行を削除する
+      alert('ok');
+    })
+
+    //3.ページ読み込み：保存データ取得表示
+    for(let i=1; i<localStorage.length; i++){
+        const key   = localStorage.key(i);
+        const value = localStorage.getItem(key);
+        const html = '<tr><th>'+key+'</th><td>'+value+'</td></tr>';
+        $("#users").append(html);
+    }
+
+ 
+    dialog = $( "#dialog-form" ).dialog({
+      autoOpen: false,
+      height: 400,
+      width: 350,
+      modal: true,
+      buttons: {
+        "Create an account": addUser,
+        Cancel: function() {
+          dialog.dialog( "close" );
+        }
+      },
+      close: function() {
+        form[ 0 ].reset();
+        allFields.removeClass( "ui-state-error" );
+      }
+    });
+ 
+    form = dialog.find( "form" ).on( "submit", function( event ) {
+      event.preventDefault();
+      addUser();
+    });
+ 
+    $( "#create-user" ).button().on( "click", function() {
+      dialog.dialog( "open" );
+    });
+  } );
+
+
+ // カテゴリー選択機能
+  $( function() {
+    $( "#menu" ).menu({
+      items: "> :not(.ui-widget-header)"
+   
+    });
+  } );
+
+  </script>
+
+ <!-- 画像切替機能 -->
+
+      <!-- 画像切り替え1   -->
+    <script language="javascript" type="text/javascript">
+        let id1 = 1;
+        func1();
+        function func1() {
+          for(let i=1; i<=3; i++) {
+            if(i==id1){
+              document.getElementById(`image${i}`).classList.remove('off');
+              document.getElementById(`image${i}`).classList.add('on');
+            } else {
+              document.getElementById(`image${i}`).classList.add('off');
+              document.getElementById(`image${i}`).classList.remove('on');
+            }
+          }
+          // idx = idx == 3 ? 1 : idx+1;
+        }
+      </script>
+
+    <!-- 画像切り替え2 -->  
+
+    <script language="javascript" type="text/javascript">
+      let id2 = 2;
+      func2();
+      function func2() {
+        for(let i=1; i<=3; i++) {
+          if(i==id2){
+            document.getElementById(`image${i}`).classList.remove('off');
+            document.getElementById(`image${i}`).classList.add('on');
+          } else {
+            document.getElementById(`image${i}`).classList.add('off');
+            document.getElementById(`image${i}`).classList.remove('on');
+          }
+        }
+        // idx = idx == 3 ? 1 : idx+1;
+      }
+    </script>
+
+    <!-- 画像切り替え3 -->
+    <script language="javascript" type="text/javascript">
+      let id3 = 3;
+      func3();
+      function func3() {
+        for(let i=1; i<=3; i++) {
+          if(i==id3){
+            document.getElementById(`image${i}`).classList.remove('off');
+            document.getElementById(`image${i}`).classList.add('on');
+          } else {
+            document.getElementById(`image${i}`).classList.add('off');
+            document.getElementById(`image${i}`).classList.remove('on');
+          }
+        }
+        // idx = idx == 3 ? 1 : idx+1;
+      }
+
+      // データ保存
+      
+    
+</script>
+
+
+  <!-- LocalStorageで保存できる付箋の追加 -->
+  <script>
+  $(function() {
+    $('#button_new').click(function() {
+      make();
+      save();
+    });
+
+    $('#button_delete').click(function() {
+      $('.selected').remove();
+      save();
+    });
+
+    function make() {
+      var sticky = $('<div class="sticky">Drag & Double Click!</div>');
+      sticky.appendTo('body')
+        .css('background-color', $('#color').val())
+        .draggable({stop: save})
+        .dblclick(function() {
+          $(this).html('<textarea>' + $(this).html() + '</textarea>')
+            .children()
+            .focus()
+            .blur(function() {
+              $(this).parent().html($(this).val());
+              save();
+            });
+        }).mousedown(function() {
+          $('.sticky').removeClass('selected');
+          $(this).addClass('selected');
+        });
+      return sticky;
+    }
+
+    function save() {
+      var items = [];
+      $('.sticky').each(function() {
+        items.push({
+          css: {
+            left: $(this).css('left'),
+            top: $(this).css('top'),
+            backgroundColor: $(this).css('background-color')
+          },
+          html: $(this).html()
+        });
+      });
+      localStorage.sticky = JSON.stringify(items);
+    }
+
+    function load() {
+      if (!localStorage.sticky) return;
+      var items = JSON.parse(localStorage.sticky);
+      $.each(items, function(i, item) {
+        make().css(item.css).html(item.html);
+      });
+    }
+    load();
+  });
+
+
+
+
+  </script>
+
+
+</body>
+</html>
